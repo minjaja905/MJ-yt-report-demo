@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Channel Report — Portfolio Demo</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233ECFB2'/%3E%3Cpath d='M10 9.5 L10 22.5 L24 16 Z' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --teal:   #2a9d8f;
+    --navy:   #2e4a82;
+    --navy2:  #5577b0;
+    --bg:     #f3f4f8;
+    --surface:#ffffff;
+    --border: #e3e5ef;
+    --text:   #1e2235;
+    --sub:    #67708f;
+    --up:     #2d7d58;
+    --down:   #c0392b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.65;
+    word-break: keep-all;
+  }
+
+  .demo-banner {
+    background: #1e2235;
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    text-align: center;
+    padding: 8px 24px;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .demo-badge {
+    background: var(--teal);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--navy);
+    display: flex; align-items: center; gap: 2px;
+    padding: 0 24px; height: 46px;
+    overflow-x: auto;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav .brand {
+    color: #fff; font-weight: 700; font-size: 13px;
+    margin-right: 14px; white-space: nowrap; letter-spacing: -0.3px;
+    flex-shrink: 0;
+  }
+  nav a {
+    color: rgba(255,255,255,0.6); text-decoration: none;
+    font-size: 12.5px; font-weight: 500; white-space: nowrap;
+    padding: 5px 10px; border-radius: 6px; transition: all 0.15s;
+  }
+  nav a:hover { color: #fff; background: rgba(255,255,255,0.1); }
+
+  header {
+    background: linear-gradient(135deg, #253d70 0%, #1a2d55 100%);
+    color: #fff; padding: 52px 40px 44px;
+    position: relative;
+  }
+  header .corner-copy {
+    position: absolute; top: 16px; right: 24px;
+    font-size: 11px; color: rgba(255,255,255,0.3);
+  }
+  header .eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 1.8px;
+    text-transform: uppercase; color: rgba(255,255,255,0.45);
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-size: 26px; font-weight: 700; letter-spacing: -0.5px;
+    line-height: 1.25; margin-bottom: 8px;
+  }
+  header h1 em { font-style: normal; color: #3ecfb2; }
+  header .desc {
+    font-size: 13px; color: rgba(255,255,255,0.45);
+    margin-bottom: 14px; line-height: 1.6;
+  }
+  header .meta {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    font-size: 13px; color: rgba(255,255,255,0.5);
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+  section { margin-top: 52px; }
+
+  section h2 {
+    font-size: 17px; font-weight: 700; letter-spacing: -0.3px;
+    margin-bottom: 20px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--navy);
+    display: flex; align-items: center; gap: 8px;
+  }
+  section h2 .num {
+    background: var(--navy); color: #fff;
+    font-size: 11px; font-weight: 700;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  section h3 {
+    font-size: 13.5px; font-weight: 700; color: var(--navy);
+    margin: 28px 0 12px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 12px; margin-bottom: 20px;
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 16px;
+  }
+  .card-label {
+    font-size: 11px; font-weight: 600; color: var(--sub);
+    letter-spacing: 0.3px; margin-bottom: 6px;
+  }
+  .card-val {
+    font-size: 24px; font-weight: 700; letter-spacing: -0.8px; line-height: 1;
+  }
+  .card-delta { font-size: 12px; font-weight: 600; margin-top: 5px; }
+  .up   { color: var(--up); }
+  .down { color: var(--down); }
+  .muted { color: var(--sub); }
+
+  .hc {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 4px solid var(--teal);
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 10px;
+  }
+  .hc.navy  { border-left-color: var(--navy); }
+  .hc.green { border-left-color: var(--up); }
+  .hc.amber { border-left-color: #b07730; }
+  .hc-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .hc-body  { font-size: 13px; color: var(--sub); line-height: 1.65; }
+
+  .chart-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px; margin-bottom: 14px;
+  }
+  .chart-wrap canvas { max-height: 300px; }
+
+  .tbl-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; margin-bottom: 14px;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    background: var(--navy); color: #fff;
+    font-size: 12px; font-weight: 600;
+    text-align: left; padding: 10px 14px;
+  }
+  td {
+    font-size: 13px; padding: 10px 14px;
+    border-bottom: 1px solid var(--border); color: var(--text);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #f7f8fb; }
+  td.num  { text-align: right; font-variant-numeric: tabular-nums; }
+  td.bold { font-weight: 700; }
+  td.rank { color: var(--sub); font-size: 12px; }
+  td.hl   { background: #e8f8f6 !important; }
+
+  .note {
+    font-size: 12px; color: var(--sub); margin-top: 8px;
+    padding-left: 12px; border-left: 2px solid var(--border); line-height: 1.65;
+  }
+
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 7px; border-radius: 20px; margin-right: 4px;
+  }
+  .tag.teal  { background: #d0f0ec; color: var(--teal); }
+  .tag.navy  { background: #e4eaf5; color: var(--navy); }
+  .tag.green { background: #e0f0ea; color: var(--up); }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  <span class="demo-badge">DEMO</span>
+  포트폴리오 시연용 예시입니다. 채널명·수치는 모두 가상 데이터이며 실제 운영 데이터와 무관합니다.
+</div>
+
+<nav>
+  <span class="brand">[채널명] YouTube Report</span>
+  <a href="#s1">콘텐츠 구성</a>
+  <a href="#s2">기획 KPI</a>
+  <a href="#s3">고정 콘텐츠</a>
+  <a href="#s4">시그니처</a>
+  <a href="#s5">TOP 10</a>
+  <a href="#s6">경쟁 채널</a>
+  <a href="#s7">트래픽</a>
+  <a href="#s8">일별 트렌드</a>
+  <a href="#s9">전략 제안</a>
+</nav>
+
+<header>
+  <span class="corner-copy">© Portfolio Demo</span>
+  <div class="eyebrow">YouTube Channel Report</div>
+  <h1>[채널명] <em>유튜브 채널</em> 성과 보고</h1>
+  <p class="desc">담당 유튜브 채널의 분기별 성과를 콘텐츠 유형별로 분석하고, 경쟁 채널 대비 포지셔닝 및 전략 방향을 제시하는 리포트입니다.<br>실제 운영 시 채널명과 수치는 자동으로 교체됩니다.</p>
+  <div class="meta">
+    <span>2025 Q1 · 1월 20일 ~ 4월 19일</span>
+    <span>작성일: 2025.04.20</span>
+    <span>기획 / 고정 콘텐츠 분리 분석</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- S1 -->
+  <section id="s1">
+    <h2><span class="num">1</span> 콘텐츠 구성 변화</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">전체 영상</div>
+        <div class="card-val">142개</div>
+        <div class="card-delta up">▲ 12.7% (전년: 126개)</div>
+      </div>
+      <div class="card">
+        <div class="card-label">기획 콘텐츠</div>
+        <div class="card-val">68개</div>
+        <div class="card-delta up">▲ 11.5% (전년: 61개)</div>
+      </div>
+      <div class="card">
+        <div class="card-label">고정 콘텐츠</div>
+        <div class="card-val">74개</div>
+        <div class="card-delta up">▲ 13.8% (전년: 65개)</div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <canvas id="chartMix"></canvas>
+    </div>
+
+    <div class="hc navy">
+      <div class="hc-title">기획 비중 47.9% 유지 — 전년 동기(48.4%) 대비 안정적</div>
+      <div class="hc-body">경기 일정에 연동되는 고정 콘텐츠가 증가하면서 총 영상수가 늘었으나, 기획과 고정의 비율은 약 48:52로 균형 유지. 기획 콘텐츠 편당 효율이 성과의 핵심 변수로 작용.</div>
+    </div>
+  </section>
+
+  <!-- S2 -->
+  <section id="s2">
+    <h2><span class="num">2</span> 기획 콘텐츠 KPI</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">평균 조회수</div>
+        <div class="card-val">84,200</div>
+        <div class="card-delta up">▲ 5.9% (전년 79,500)</div>
+      </div>
+      <div class="card">
+        <div class="card-label">총 조회수</div>
+        <div class="card-val">573만</div>
+        <div class="card-delta up">▲ 18.2%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">총 시청 시간</div>
+        <div class="card-val">24,800h</div>
+        <div class="card-delta up">▲ 14.3%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">평균 CTR</div>
+        <div class="card-val">5.8%</div>
+        <div class="card-delta up">▲ 0.5%p (전년 5.3%)</div>
+      </div>
+      <div class="card">
+        <div class="card-label">평균 시청 지속시간</div>
+        <div class="card-val">2분 34초</div>
+        <div class="card-delta up">▲ 18초</div>
+      </div>
+      <div class="card">
+        <div class="card-label">구독 전환율</div>
+        <div class="card-val">38.2<span style="font-size:14px">/100k</span></div>
+        <div class="card-delta up">▲ 전년 32.4</div>
+      </div>
+    </div>
+
+    <h3>신규 / 재방문 시청자</h3>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">신규 시청자</div>
+        <div class="card-val">1,842,000</div>
+        <div class="card-delta up">▲ 9.4%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">재방문 시청자</div>
+        <div class="card-val">892,000</div>
+        <div class="card-delta up">▲ 7.1%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">신규 비중</div>
+        <div class="card-val">67.4%</div>
+        <div class="card-delta muted">전년 66.1%</div>
+      </div>
+    </div>
+
+    <div class="hc">
+      <div class="hc-title">평균 조회수 5.9% 성장 — 영상수 증가에도 편당 효율 유지</div>
+      <div class="hc-body">기획 영상 편수가 11.5% 늘어났음에도 평균 조회수가 함께 증가한 것은 고퀄리티 기획 유지 효과. CTR 5.8%는 업계 평균(2~5%) 상단을 유지하고 있으며, 썸네일·제목 최적화가 주요 요인.</div>
+    </div>
+    <div class="hc green">
+      <div class="hc-title">구독 전환율 38.2/100k — 전년 대비 +5.8 개선</div>
+      <div class="hc-body">조회수 10만 건당 구독자 38명 전환. 신규 시청자 유입이 증가하면서 채널 구독으로 이어지는 비율도 함께 상승. 브랜드 인지도 제고 콘텐츠의 효과로 해석 가능.</div>
+    </div>
+  </section>
+
+  <!-- S3 -->
+  <section id="s3">
+    <h2><span class="num">3</span> 고정 콘텐츠 현황</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">고정 영상수</div>
+        <div class="card-val">74개</div>
+        <div class="card-delta up">▲ 13.8%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">고정 평균 조회수</div>
+        <div class="card-val">21,400</div>
+        <div class="card-delta muted">안정적 유지</div>
+      </div>
+      <div class="card">
+        <div class="card-label">고정 총 시청 시간</div>
+        <div class="card-val">6,200h</div>
+        <div class="card-delta up">▲ 11.2%</div>
+      </div>
+    </div>
+    <div class="hc amber">
+      <div class="hc-title">고정 콘텐츠 조회수, 기획 대비 4배 격차</div>
+      <div class="hc-body">고정 콘텐츠는 채널 운영의 기반이지만 채널 성장의 드라이버는 기획 콘텐츠. 고정의 역할은 구독자 유지·습관 형성에 집중하고, 기획에서 신규 유입을 만드는 구조가 현재도 유효하게 작동 중.</div>
+    </div>
+  </section>
+
+  <!-- S4 -->
+  <section id="s4">
+    <h2><span class="num">4</span> 시그니처 콘텐츠 분석</h2>
+    <p class="note" style="margin-bottom:16px;">채널의 대표 정기 시리즈 콘텐츠 성과. 매 시즌 운영되는 고정 포맷으로, 브랜드 아이덴티티와 직결되는 핵심 시리즈.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">시그니처 편수</div>
+        <div class="card-val">18편</div>
+        <div class="card-delta muted">전년 15편</div>
+      </div>
+      <div class="card">
+        <div class="card-label">평균 조회수</div>
+        <div class="card-val">62,400</div>
+        <div class="card-delta up">▲ 8.2%</div>
+      </div>
+      <div class="card">
+        <div class="card-label">평균 CTR</div>
+        <div class="card-val">6.9%</div>
+        <div class="card-delta up">전체 평균 상회</div>
+      </div>
+      <div class="card">
+        <div class="card-label">평균 조회율</div>
+        <div class="card-val">44.2%</div>
+        <div class="card-delta up">▲ 전년 38.7%</div>
+      </div>
+    </div>
+    <div class="hc">
+      <div class="hc-title">시그니처 시리즈 CTR 6.9% — 채널 전체 평균(5.8%) 상회</div>
+      <div class="hc-body">정기 시리즈에 대한 구독자 기대감이 높아져 노출 대비 클릭률이 전체 평균을 넘어섬. 평균 조회율 44.2%는 시청자가 영상의 절반 가까이를 시청한다는 의미로, 콘텐츠 완성도가 높음을 나타냄.</div>
+    </div>
+  </section>
+
+  <!-- S5 -->
+  <section id="s5">
+    <h2><span class="num">5</span> TOP 10 기획 콘텐츠</h2>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:36px">#</th>
+            <th>콘텐츠 제목 (예시)</th>
+            <th style="text-align:right">조회수</th>
+            <th style="text-align:right">CTR</th>
+            <th>유형</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rank">1</td>
+            <td class="bold hl">[기획] 시즌 개막 특집 — 올해의 목표</td>
+            <td class="num">482,300</td>
+            <td class="num">8.4%</td>
+            <td><span class="tag teal">특집</span></td>
+          </tr>
+          <tr>
+            <td class="rank">2</td>
+            <td>[기획] 콜라보 기획 #1 — 특별 게스트 편</td>
+            <td class="num">341,000</td>
+            <td class="num">7.8%</td>
+            <td><span class="tag navy">콜라보</span></td>
+          </tr>
+          <tr>
+            <td class="rank">3</td>
+            <td>[기획] 비하인드 — 제작 과정 공개</td>
+            <td class="num">287,500</td>
+            <td class="num">7.1%</td>
+            <td><span class="tag teal">비하인드</span></td>
+          </tr>
+          <tr>
+            <td class="rank">4</td>
+            <td>[기획] 콜라보 기획 #2 — 팬 참여 편</td>
+            <td class="num">241,200</td>
+            <td class="num">6.9%</td>
+            <td><span class="tag navy">콜라보</span></td>
+          </tr>
+          <tr>
+            <td class="rank">5</td>
+            <td>[기획] 시즌 스토리 — 성장의 기록</td>
+            <td class="num">198,400</td>
+            <td class="num">6.5%</td>
+            <td><span class="tag teal">스토리</span></td>
+          </tr>
+          <tr>
+            <td class="rank">6</td>
+            <td>[기획] 팬과 함께 — 특별 이벤트 현장</td>
+            <td class="num">174,800</td>
+            <td class="num">6.2%</td>
+            <td><span class="tag green">팬 참여</span></td>
+          </tr>
+          <tr>
+            <td class="rank">7</td>
+            <td>[기획] 인터뷰 시리즈 — 핵심 멤버 편</td>
+            <td class="num">152,300</td>
+            <td class="num">5.9%</td>
+            <td><span class="tag teal">인터뷰</span></td>
+          </tr>
+          <tr>
+            <td class="rank">8</td>
+            <td>[기획] 미니 다큐 — 현장 밀착 촬영</td>
+            <td class="num">138,700</td>
+            <td class="num">5.7%</td>
+            <td><span class="tag teal">다큐</span></td>
+          </tr>
+          <tr>
+            <td class="rank">9</td>
+            <td>[기획] 챌린지 기획 — 팬 반응 편</td>
+            <td class="num">124,100</td>
+            <td class="num">5.5%</td>
+            <td><span class="tag green">팬 참여</span></td>
+          </tr>
+          <tr>
+            <td class="rank">10</td>
+            <td>[기획] 콜라보 기획 #3 — 신규 포맷</td>
+            <td class="num">112,900</td>
+            <td class="num">5.3%</td>
+            <td><span class="tag navy">콜라보</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">콜라보·특집·팬 참여형 기획이 상위권 점유. 조회수 상위 10개 평균 CTR 6.5%로 전체 평균(5.8%) 상회.</p>
+  </section>
+
+  <!-- S6 -->
+  <section id="s6">
+    <h2><span class="num">6</span> 경쟁 채널 구독자 현황</h2>
+    <p class="note" style="margin-bottom:16px;">동일 카테고리 주요 채널 실시간 구독자 현황. 당사 채널 포지셔닝 파악 용도.</p>
+    <div class="chart-wrap">
+      <canvas id="chartSubs"></canvas>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>채널</th>
+            <th style="text-align:right">구독자</th>
+            <th style="text-align:right">전일 대비</th>
+          </tr>
+        </thead>
+        <tbody id="subsTbl"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S7 -->
+  <section id="s7">
+    <h2><span class="num">7</span> 트래픽 소스 분석</h2>
+    <div class="chart-wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div>
+        <canvas id="chartTrafficCur"></canvas>
+      </div>
+      <div>
+        <canvas id="chartTrafficPrev"></canvas>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>트래픽 소스</th>
+            <th style="text-align:right">2025 Q1 비중</th>
+            <th style="text-align:right">2024 Q1 비중</th>
+            <th style="text-align:right">변화</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="bold">유튜브 검색</td><td class="num">34.2%</td><td class="num">31.5%</td><td class="num up">▲ +2.7%p</td></tr>
+          <tr><td>추천 동영상</td><td class="num">28.5%</td><td class="num">29.8%</td><td class="num down">▼ -1.3%p</td></tr>
+          <tr><td>채널 페이지</td><td class="num">15.3%</td><td class="num">14.1%</td><td class="num up">▲ +1.2%p</td></tr>
+          <tr><td>탐색 기능</td><td class="num">12.1%</td><td class="num">13.4%</td><td class="num down">▼ -1.3%p</td></tr>
+          <tr><td>외부 (SNS 등)</td><td class="num">6.8%</td><td class="num">7.2%</td><td class="num muted">- 0.4%p</td></tr>
+          <tr><td>기타</td><td class="num">3.1%</td><td class="num">4.0%</td><td class="num muted">- 0.9%p</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="hc">
+      <div class="hc-title">검색 유입 34.2%로 증가 — 채널 자체 검색 인지도 상승</div>
+      <div class="hc-body">유튜브 검색을 통한 유입이 전년 대비 2.7%p 상승. 채널명 및 주요 키워드 검색 최적화(제목·태그·설명)의 효과로 해석. 탐색 기능 유입 소폭 감소는 홈 피드 알고리즘 변화에 기인.</div>
+    </div>
+  </section>
+
+  <!-- S8 -->
+  <section id="s8">
+    <h2><span class="num">8</span> 일별 트렌드</h2>
+    <h3>일별 CTR 추이</h3>
+    <div class="chart-wrap">
+      <canvas id="chartCTR"></canvas>
+    </div>
+    <div class="hc navy">
+      <div class="hc-title">시즌 개막 이후 CTR 5%대 → 6%대 점프</div>
+      <div class="hc-body">1~2월 비시즌 기간 CTR 4.8~5.2% 유지 → 시즌 개막(3월 하순) 이후 CTR 6.0~7.2%로 상승. 채널 특성상 시즌 연동 콘텐츠 효과가 CTR에 직접 반영됨. 비시즌 콘텐츠 CTR 개선 여지 존재.</div>
+    </div>
+  </section>
+
+  <!-- S9 -->
+  <section id="s9">
+    <h2><span class="num">9</span> 전략 제안</h2>
+
+    <div class="hc">
+      <div class="hc-title">① 콜라보·팬 참여형 기획 확대</div>
+      <div class="hc-body">TOP 10 중 콜라보(3편)·팬 참여(2편)가 상위권 점유. 제작 비용 대비 조회수 효율이 높고 신규 시청자 유입 효과도 큼. 분기 내 2회 이상 안정적 편성 권장.</div>
+    </div>
+    <div class="hc navy">
+      <div class="hc-title">② 검색 유입 강화 — 제목·태그 최적화 루틴화</div>
+      <div class="hc-body">검색 트래픽이 가장 큰 소스(34.2%)임에도 별도 SEO 기준이 없는 상태. 업로드 전 제목 키워드 검토·태그 표준화 체크리스트 도입으로 검색 노출 추가 개선 가능.</div>
+    </div>
+    <div class="hc green">
+      <div class="hc-title">③ 비시즌 기획 콘텐츠 강화로 비수기 CTR 방어</div>
+      <div class="hc-body">1~2월 CTR 4.8%대로 시즌 대비 하락. 비시즌에도 팬의 관심을 유지할 수 있는 오프시즌 전용 기획(비하인드·미니 다큐 등) 2편/월 편성을 제안.</div>
+    </div>
+    <div class="hc amber">
+      <div class="hc-title">④ 시그니처 시리즈 포맷 고도화</div>
+      <div class="hc-body">CTR 6.9%로 채널 평균 상회하는 핵심 포맷. 편수를 전년(15편) 대비 더 확대하되, 조회율 44%를 유지할 수 있는 편집 퀄리티·러닝타임 관리 병행 필요.</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const C = {
+  teal:  '#2a9d8f',
+  navy:  '#2e4a82',
+  navy2: '#5577b0',
+  grid:  'rgba(0,0,0,0.06)',
+  up:    '#2d7d58',
+  down:  '#c0392b',
+};
+
+function T(title) { return { display: true, text: title, font: { size: 13, weight: '600' }, color: '#1e2235', padding: { bottom: 12 } }; }
+
+// S1 - 콘텐츠 구성
+new Chart(document.getElementById('chartMix'), {
+  type: 'bar',
+  data: {
+    labels: ['2024 Q1', '2025 Q1'],
+    datasets: [
+      { label: '기획', data: [61, 68], backgroundColor: C.teal },
+      { label: '고정', data: [65, 74], backgroundColor: C.navy2 },
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { title: T('콘텐츠 유형별 영상수 (기획 vs 고정)'), legend: { position: 'bottom' } },
+    scales: {
+      x: { stacked: true, grid: { display: false } },
+      y: { stacked: true, grid: { color: C.grid }, ticks: { stepSize: 20 } }
+    }
+  }
+});
+
+// S6 - 경쟁 채널 구독자
+const channels = [
+  { name: 'A 채널', subs: 524000, delta: +120 },
+  { name: 'B 채널', subs: 412000, delta: +85 },
+  { name: 'C 채널', subs: 387000, delta: +210 },
+  { name: 'D 채널', subs: 312000, delta: +44 },
+  { name: '[당사]', subs: 287430, delta: +190 },
+  { name: 'E 채널', subs: 261000, delta: +32 },
+  { name: 'F 채널', subs: 234000, delta: +67 },
+  { name: 'G 채널', subs: 198000, delta: -12 },
+  { name: 'H 채널', subs: 176000, delta: +28 },
+  { name: 'I 채널', subs: 143000, delta: +15 },
+];
+
+channels.sort((a, b) => b.subs - a.subs);
+const myIdx = channels.findIndex(c => c.name === '[당사]');
+
+new Chart(document.getElementById('chartSubs'), {
+  type: 'bar',
+  data: {
+    labels: channels.map(c => c.name),
+    datasets: [{
+      label: '구독자 수',
+      data: channels.map(c => c.subs),
+      backgroundColor: channels.map((c, i) => i === myIdx ? C.teal : C.navy2),
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { title: T('경쟁 채널 구독자 현황'), legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x.toLocaleString()}명` } } },
+    scales: {
+      x: { grid: { color: C.grid }, ticks: { callback: v => (v/10000).toFixed(0)+'만' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+const tbody = document.getElementById('subsTbl');
+channels.forEach((c, i) => {
+  const isMy = c.name === '[당사]';
+  const deltaStr = c.delta >= 0 ? `<span class="up">+${c.delta.toLocaleString()}</span>` : `<span class="down">${c.delta.toLocaleString()}</span>`;
+  tbody.innerHTML += `<tr${isMy ? ' style="font-weight:700;background:#e8f8f6"' : ''}>
+    <td class="rank">${i+1}</td>
+    <td>${c.name}${isMy ? ' ★' : ''}</td>
+    <td class="num">${c.subs.toLocaleString()}</td>
+    <td class="num">${deltaStr}</td>
+  </tr>`;
+});
+
+// S7 - 트래픽 소스
+const trafficLabels = ['유튜브 검색', '추천 동영상', '채널 페이지', '탐색 기능', '외부', '기타'];
+const trafficColors = [C.teal, C.navy, C.navy2, '#3d6b9e', '#6a9fc4', '#aabcd8'];
+
+new Chart(document.getElementById('chartTrafficCur'), {
+  type: 'doughnut',
+  data: { labels: trafficLabels, datasets: [{ data: [34.2, 28.5, 15.3, 12.1, 6.8, 3.1], backgroundColor: trafficColors }] },
+  options: { plugins: { title: T('2025 Q1 트래픽 소스'), legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+new Chart(document.getElementById('chartTrafficPrev'), {
+  type: 'doughnut',
+  data: { labels: trafficLabels, datasets: [{ data: [31.5, 29.8, 14.1, 13.4, 7.2, 4.0], backgroundColor: trafficColors }] },
+  options: { plugins: { title: T('2024 Q1 트래픽 소스'), legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// S8 - 일별 CTR
+(function() {
+  const dates = [], ctrs = [];
+  const start = new Date('2025-01-20');
+  for (let i = 0; i < 89; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    dates.push(d.toISOString().slice(5,10).replace('-','/'));
+    const base = i < 60 ? 5.0 : 6.2;
+    ctrs.push(+(base + (Math.random() - 0.5) * 1.2).toFixed(2));
+  }
+  new Chart(document.getElementById('chartCTR'), {
+    type: 'line',
+    data: { labels: dates, datasets: [{ label: 'CTR (%)', data: ctrs, borderColor: C.teal, backgroundColor: 'rgba(42,157,143,0.08)', borderWidth: 1.5, pointRadius: 0, tension: 0.3 }] },
+    options: {
+      responsive: true,
+      plugins: { title: T('일별 CTR 추이'), legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, font: { size: 11 } } },
+        y: { grid: { color: C.grid }, ticks: { callback: v => v + '%' }, min: 2, max: 10 }
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>
