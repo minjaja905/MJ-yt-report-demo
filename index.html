@@ -194,6 +194,7 @@
 
 <nav>
   <span class="brand">[채널명] YT</span>
+  <a href="comments.html">💬 댓글 분석</a>
   <a href="#s1">콘텐츠 구성</a>
   <a href="#s2">기획 콘텐츠</a>
   <a href="#s3">구독자 분석</a>
@@ -203,6 +204,7 @@
   <a href="#s7">라이브 실적</a>
   <a href="#s8">브랜딩 비교</a>
   <a href="#s9">트래픽 소스</a>
+  <a href="#s10">메타 인사이트</a>
 </nav>
 
 <!-- MODAL -->
@@ -297,12 +299,12 @@
           <tr><td>기획 영상 수</td><td class="num">96개</td><td class="num">81개</td><td class="num down">▼ 15.6%</td></tr>
           <tr><td>영상당 평균 조회수</td><td class="num">114,637</td><td class="num bold">107,533</td><td class="num down">▼ 6.2%</td></tr>
           <tr><td>기획 총 조회수</td><td class="num">11,005,152</td><td class="num">8,710,173</td><td class="num down">▼ 20.9%</td></tr>
-          <tr><td class="hl">시청 시간 (h)</td><td class="num hl">XX,XXX</td><td class="num hl bold">XX,XXX</td><td class="num down hl">▼ XX%</td></tr>
-          <tr><td>영상당 평균 시청시간</td><td class="num">X분 XX초</td><td class="num">X분 XX초</td><td class="num down">▼ XX%</td></tr>
-          <tr><td>구독 전환 (per 100k)</td><td class="num">XX.X명</td><td class="num bold">XX.X명</td><td class="num down">▼ XX%</td></tr>
-          <tr><td>신규 시청자</td><td class="num">XXX,XXX</td><td class="num">XXX,XXX</td><td class="num down">▼ XX%</td></tr>
-          <tr><td>신규 시청자 비중</td><td class="num">X.X%</td><td class="num">X.X%</td><td class="num down">▼ X.X%p</td></tr>
-          <tr><td>평균 CTR</td><td class="num">X.XX%</td><td class="num">X.XX%</td><td class="num up">▲ X.XX%p</td></tr>
+          <tr><td class="hl">시청 시간 (h)</td><td class="num hl">54,800</td><td class="num hl bold">36,700</td><td class="num down hl">▼ 33.0%</td></tr>
+          <tr><td>영상당 평균 시청시간</td><td class="num">5분 42초</td><td class="num">4분 33초</td><td class="num down">▼ 20.2%</td></tr>
+          <tr><td>구독 전환 (per 100k)</td><td class="num">10.5명</td><td class="num bold">4.2명</td><td class="num down">▼ 60.0%</td></tr>
+          <tr><td>신규 시청자</td><td class="num">515,903</td><td class="num">333,324</td><td class="num down">▼ 35.4%</td></tr>
+          <tr><td>신규 시청자 비중</td><td class="num">8.0%</td><td class="num">6.4%</td><td class="num down">▼ 1.6%p</td></tr>
+          <tr><td>평균 CTR</td><td class="num">6.87%</td><td class="num">7.02%</td><td class="num up">▲ 0.15%p</td></tr>
         </tbody>
       </table>
     </div>
@@ -627,6 +629,29 @@
     <p class="note">※ 주요 피크 구간: 외부 콜라보 영상 발행일 → 정규시즌 개막일 → 경기 하이라이트 연속 업로드 구간</p>
   </section>
 
+  <!-- S10 -->
+  <section id="s10">
+    <h2><span class="num">10</span> 콘텐츠 메타 인사이트 <span id="notion-updated" style="font-size:11px;font-weight:400;color:var(--sub);margin-left:8px"></span></h2>
+    <p class="note" style="margin-bottom:20px">Notion DB 기반 · 완료 항목 중 YT 조회수 있는 영상만 집계 · n=1 항목은 참고용</p>
+
+    <h3>카테고리별 평균 조회수</h3>
+    <div class="chart-wrap"><canvas id="chartCat" style="max-height:340px"></canvas></div>
+
+    <h3>업로드 시간대별 평균 조회수</h3>
+    <div class="chart-wrap"><canvas id="chartHour"></canvas></div>
+
+    <h3>요일별 평균 조회수</h3>
+    <div class="chart-wrap"><canvas id="chartWeekday"></canvas></div>
+
+    <h3>경기 승패별 평균 조회수</h3>
+    <div class="chart-wrap"><canvas id="chartWinLoss"></canvas></div>
+    <p class="note">승패 데이터는 경기 관련 콘텐츠만 해당. 데이터가 쌓일수록 정확도 향상.</p>
+
+    <h3>주인공별 평균 조회수</h3>
+    <div class="chart-wrap"><canvas id="chartSubject" style="max-height:400px"></canvas></div>
+    <p class="note">주인공 미입력 항목 제외. 데이터가 쌓일수록 정확도 향상.</p>
+  </section>
+
 </div>
 
 <footer>
@@ -823,6 +848,116 @@ new Chart(document.getElementById('chartTraffic'), {
       scales:{x:{grid:{display:false},ticks:{maxTicksLimit:16,font:{size:10}}},
         y:{grid:{color:C.grid},ticks:{callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}}}}
   });
+})();
+
+// ── S10 Notion 메타 인사이트 (데모용 더미 데이터)
+const NOTION_DATA = {
+  generated_at: "2026-04-28T19:53:00",
+  total_items: 67,
+  by_category: [
+    { label: "생중계",       count: 13, avg: 272000 },
+    { label: "콜라보",       count:  4, avg: 218000 },
+    { label: "응원가·플리",  count:  5, avg: 158000 },
+    { label: "하이라이트(기획형)", count: 8, avg: 134000 },
+    { label: "인터뷰·특집",  count: 12, avg: 112000 },
+    { label: "훈련·캠프",   count: 11, avg:  87000 },
+    { label: "이벤트·현장",  count:  7, avg:  64000 },
+    { label: "기타 기획",    count:  7, avg:  58000 }
+  ],
+  by_hour: [
+    { label: "10시", count:  8, avg: 108000 },
+    { label: "11시", count: 14, avg: 131000 },
+    { label: "12시", count:  6, avg:  94000 },
+    { label: "13시", count:  4, avg:  82000 },
+    { label: "14시", count:  9, avg: 118000 },
+    { label: "15시", count:  5, avg:  73000 },
+    { label: "16시", count:  8, avg:  91000 },
+    { label: "17시", count:  3, avg: 104000 },
+    { label: "18시", count:  6, avg: 138000 },
+    { label: "19시", count:  4, avg:  85000 }
+  ],
+  by_weekday: [
+    { label: "월", count: 11, avg:  91000 },
+    { label: "화", count:  9, avg: 108000 },
+    { label: "수", count: 12, avg: 127000 },
+    { label: "목", count: 10, avg: 103000 },
+    { label: "금", count: 13, avg: 141000 },
+    { label: "토", count:  7, avg: 178000 },
+    { label: "일", count:  5, avg: 154000 }
+  ],
+  by_win_loss: [
+    { label: "승", count: 19, avg: 162000 },
+    { label: "패", count: 11, avg: 138000 },
+    { label: "무", count:  2, avg: 124000 }
+  ],
+  by_subject: [
+    { label: "선수 A",  count: 14, avg: 183000 },
+    { label: "팀 전체", count:  9, avg: 171000 },
+    { label: "선수 B",  count:  8, avg: 147000 },
+    { label: "감독",    count:  6, avg: 138000 },
+    { label: "선수 C",  count:  6, avg: 124000 },
+    { label: "선수 D",  count:  5, avg: 112000 },
+    { label: "선수 E",  count:  4, avg:  96000 },
+    { label: "선수 F",  count:  3, avg:  87000 }
+  ]
+};
+
+(function() {
+  if (typeof NOTION_DATA === 'undefined') return;
+  const ND = NOTION_DATA;
+
+  const ts = new Date(ND.generated_at);
+  const el = document.getElementById('notion-updated');
+  if (el) el.textContent = `(${ts.getMonth()+1}/${ts.getDate()} 기준 · ${ND.total_items}개 영상)`;
+
+  const bar = (id, labels, data, counts, title, axisY=false) => {
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+    const tooltipFn = (ctx2) => {
+      const n = counts ? counts[ctx2.dataIndex] : null;
+      return ` ${ctx2.parsed[axisY?'x':'y'].toLocaleString()}회${n!=null?' (n='+n+')':''}`;
+    };
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: data.map(v => v === Math.max(...data) ? C.teal : C.navy2),
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        indexAxis: axisY ? 'y' : 'x',
+        responsive: true,
+        plugins: {
+          title: T(title),
+          legend: { display: false },
+          tooltip: { callbacks: { label: tooltipFn } },
+        },
+        scales: {
+          [axisY?'x':'y']: {
+            ticks: { callback: v => (v/1000).toFixed(0)+'k' },
+            grid: { color: C.grid },
+          }
+        }
+      }
+    });
+  };
+
+  const cats = ND.by_category.filter(d => d.count >= 1);
+  bar('chartCat', cats.map(d => `${d.label} (${d.count})`), cats.map(d => d.avg), cats.map(d => d.count), '카테고리별 평균 조회수', true);
+
+  bar('chartHour', ND.by_hour.map(d => d.label), ND.by_hour.map(d => d.avg), ND.by_hour.map(d => d.count), '업로드 시간대별 평균 조회수');
+
+  bar('chartWeekday', ND.by_weekday.map(d => d.label+'요일'), ND.by_weekday.map(d => d.avg), ND.by_weekday.map(d => d.count), '요일별 평균 조회수');
+
+  bar('chartWinLoss', ND.by_win_loss.map(d => `${d.label} (n=${d.count})`), ND.by_win_loss.map(d => d.avg), null, '경기 승패별 평균 조회수');
+
+  const subjs = ND.by_subject.filter(d => d.count >= 2);
+  if (subjs.length > 0) {
+    bar('chartSubject', subjs.map(d => `${d.label} (${d.count})`), subjs.map(d => d.avg), subjs.map(d => d.count), '주인공별 평균 조회수 (n≥2)', true);
+  }
 })();
 </script>
 </body>
